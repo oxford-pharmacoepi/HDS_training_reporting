@@ -1,0 +1,140 @@
+---
+title: "HDS training: Use Quarto for Reporting"
+format:
+  revealjs: 
+    theme: [simple, custom_1.scss]
+    incremental: true   
+    slide-number: true
+    chalkboard: true
+    preview-links: auto
+    margin: 0.07
+    code-link: true
+    code-line-numbers: false
+    height: 900
+    width: 1600
+execute:
+  echo: true
+  eval: true
+editor: visual
+---
+
+## Quarto: Why Another Tool?
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+-   **We use Shiny** for interactive analysis.
+-   But what about:
+    -   Static reports for regulatory submissions?
+    -   Summaries with tables and figures for publications?
+    -   Easy export to Word/PDF without manual copy-pasting?
+-   **Quarto** helps us generate structured, automated, and reproducible reports.
+
+------------------------------------------------------------------------
+
+## Quarto vs. Shiny: Different Purposes
+
+| Feature             | **Shiny (Apps)**          | **Quarto (Reports)**              |
+|--------------------|----------------------|------------------------------|
+| **User Need**       | Interactive dashboards    | Static reports with analysis      |
+| **Reproducibility** | Reacts to user inputs     | Fixed, version-controlled outputs |
+| **Output Format**   | Web-based UI              | Word, PDF, HTML, PowerPoint       |
+| **Best For**        | Exploratory data analysis | Structured study reports          |
+
+💡 **We need both**: - **Shiny** for exploring data. - **Quarto** for final reporting.
+
+------------------------------------------------------------------------
+
+## Write Quarto Code
+
+With the help of `visOmopResults` package, we can use **table and plot functions** to directly output results in different formats. Examples:
+
+::: {style="max-height: 500px; overflow-y: auto; font-size: 0.8em;"}
+| **Package**             | **Result Function**        | **Table Function**     | **Plot Function**     |
+|-----------------|--------------------|-----------------|-----------------|
+| `CohortCharacteristics` | `summariseCharacteristics` | `tableCharacteristics` | `plotCharacteristics` |
+| `IncidencePrevalence`   | `estimateIncidence`        | `tableIncidence`       | `plotIncidence`       |
+| `DrugUtilisation`       | `summariseDrugUtilisation` | `tableDrugUtilisation` | `plotDrugUtilisation` |
+:::
+
+💡 **Key Points:**
+
+-   **Each result function** computes the summary/statistics.
+
+-   **Table functions** generate structured tables.
+
+-   **Plot functions** provide visual representations.
+
+-   All these functions are backed by `visOmopResults` for consistency.
+
+------------------------------------------------------------------------
+
+### Table Output Options
+
+💡 **Which one to use?**
+
+::: {style="max-height: 500px; overflow-y: auto; font-size: 0.8em;"}
+| **Type**      | **Package Used** | **Best For**            | **Key Features**                                                     |
+|--------------|--------------|---------------|-----------------------------|
+| `"gt"`        | `gt`             | HTML / PDF reports      | \- Publication-quality tables <br>- Styling, footnotes, citations    |
+| `"flextable"` | `flextable`      | Word / PowerPoint       | \- Best for MS Word & PPT <br>- More control over formatting         |
+| `"tibble"`    | `tibble`         | Data wrangling in R     | \- Prints neatly in console <br>- Not for final reports              |
+| `"datatable"` | `DT`             | Interactive web reports | \- JavaScript-powered tables <br>- Search, filter, and sort features |
+:::
+
+------------------------------------------------------------------------
+
+### Example Code
+
+::: {style="max-height: 1000px; min-height: 400px;overflow-y: auto; font-size: 0.8em;"}
+```{r setup, include=TRUE}
+library(dplyr)
+library(ggplot2)
+library(CohortCharacteristics)
+library(omopgenerics)
+library(readr)
+library(IncidencePrevalence)
+library(IncidencePrevalence)
+library(gt)
+library(here)
+load(here("data", "incidence.Rdata"))
+results_CPRD_GOLD_2025_01_08 <- read_csv(here("data", "results_CPRD GOLD_2025_01_08.csv"))
+```
+
+```{r}
+gt_table <- tableCharacteristics(
+  results_CPRD_GOLD_2025_01_08 |> newSummarisedResult() |> 
+    omopgenerics::filterSettings(result_type == "summarise_characteristics"),
+  type = "gt"
+) |> 
+  gt::tab_options(
+    table.font.size = px(15),    
+    data_row.padding = px(20),    
+    column_labels.font.size = px(14) 
+  )
+
+gt_table
+```
+:::
+
+------------------------------------------------------------------------
+
+### Plot
+
+```{r, fig.width=25, fig.height=15}
+plotIncidence(
+    result = incidence |>
+        filterSettings(denominator_age_group %in% c(
+            "0 to 19",
+            "20 to 39"
+        )),
+    facet = c("outcome_cohort_name", "denominator_sex"),
+    colour = c("denominator_age_group")
+)
+```
+
+------------------------------------------------------------------------
+### Try It Yourself
+
+- Create a **Quarto** document.  
+- Add an **incidence table** with **year** as the analysis interval, including only **females aged 20 to 39**.  
+- Add a **characteristics plot** showing the **percentage of patients in each age group**.

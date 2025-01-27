@@ -1,0 +1,36 @@
+---
+title: "solution"
+format: html
+editor: visual
+---
+```{r setup, include=TRUE}
+library(dplyr)
+library(ggplot2)
+library(CohortCharacteristics)
+library(omopgenerics)
+library(readr)
+library(IncidencePrevalence)
+library(IncidencePrevalence)
+library(gt)
+load("incidence.Rdata")
+results_CPRD_GOLD_2025_01_08 <- read_csv("results_CPRD GOLD_2025_01_08.csv")
+```
+## Incidence table
+```{r}
+tableIncidence(incidence |>
+                 filterAdditional(analysis_interval == "years") |>
+                 filterSettings(denominator_sex == "Female",
+                                denominator_age_group == "20 to 39"
+                                ))
+```
+## Characteristics plot
+```{r}
+plotCharacteristics(
+  results_CPRD_GOLD_2025_01_08 |>
+    newSummarisedResult() |>
+    omopgenerics::filterSettings(result_type == "summarise_characteristics") |>    
+    filter(estimate_name == "percentage",
+           variable_name == "Age group")
+) 
+```
+
