@@ -146,7 +146,9 @@ download.file(
 )
 ```
 
-Exercise:
+## Your turn
+
+Exercise: *(5 minutes)*
 
 -   Import the results.
 -   How many results types are included?
@@ -170,9 +172,9 @@ result |>
   omopgenerics::tidy()
 ```
 
-## Quarto
-
 ## Quarto: Why Another Tool?
+
+. . .
 
 Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
 
@@ -181,7 +183,9 @@ Quarto enables you to weave together content and executable code into a finished
     -   Static reports for regulatory submissions?
     -   Summaries with tables and figures for publications?
     -   Easy export to Word/PDF without manual copy-pasting?
--   **Quarto** helps us generate structured, automated, and reproducible reports. \## Quarto vs. Shiny: Different Purposes
+-   **Quarto** helps us generate structured, automated, and reproducible reports. 
+
+## Quarto vs. Shiny: Different Purposes
 
 | Feature             | **Shiny (Apps)**          | **Quarto (Reports)**              |
 |--------------------|----------------------|------------------------------|
@@ -201,7 +205,17 @@ Quarto enables you to weave together content and executable code into a finished
 
 Create my first quarto document:
 
+*Blank file* -> *Quarto Doc...* -> *my_first_quarto.qmd*
+
 . . .
+
+Use the **Render** button to generate the html document. 
+
+![](images/render.png)
+
+## Write simple quarto code
+
+Let's add some content to the quarto document:
 
 ```{yaml}
 ---
@@ -210,12 +224,6 @@ format: html
 editor: visual
 ---
 ```
-
-. . .
-
-Use the **Render** button to generate the html document. 
-
-![](images/render.png)
 
 ## Write simple quarto code
 
@@ -245,13 +253,13 @@ We can add some text here
 
 We can add titles using '\#', more symbols lower level:
 
-```` markdown
+``` markdown
 ## Title
 ### Subtitle
 #### Subsubtitle
 ##### Subsubsubtitle
 We can add some text here
-````
+```
 
 ## Titles
 
@@ -261,10 +269,10 @@ We can add some text here
 
 Links can be added in two different ways:
 
-```` markdown
+``` markdown
 <https://www.ndorms.ox.ac.uk>
 [Label](https://quarto.org)
-````
+```
 
 ## Links
 
@@ -274,11 +282,11 @@ Links can be added in two different ways:
 
 You can easily add images like:
 
-```` markdown
+``` markdown
 ![](relative path to image)
 ![](myfigure.png)
 ![](folder/myfigure.png)
-````
+```
 
 ## Code
 
@@ -286,21 +294,22 @@ The main reason to use quarto is that we can embed code into quarto!
 
 To add code we can use:
 
-```` markdown
-```{{r}}
+``` markdown
+` ``{r}
 ggplot2::ggplot(ggplot2::midwest, ggplot2::aes(x=area, y=poptotal)) + 
   ggplot2::geom_point(ggplot2::aes(col=state, size=popdensity)) + 
   ggplot2::geom_smooth(method="loess", se=F) + 
   ggplot2::xlim(c(0, 0.1)) + 
   ggplot2::ylim(c(0, 500000)) + 
-  ggplot2::labs(subtitle="Area Vs Population", 
-       y="Population", 
-       x="Area", 
-       title="Scatterplot", 
-       caption = "Source: midwest")
+  ggplot2::labs(
+    subtitle="Area Vs Population", 
+    y="Population", 
+    x="Area", 
+    title="Scatterplot", 
+    caption = "Source: midwest"
+  )
+` ``
 ```
-````
-
 . . .
 
 You can add the code chunk with the following button:
@@ -324,8 +333,8 @@ You can hide, messages, warning, output using the following options:
 
 . . .
 
-```` markdown
-```{{r, warning=FALSE, message=FALSE, echo=FALSE}}
+``` markdown
+` ``{{r, warning=FALSE, message=FALSE, echo=FALSE}}
 ggplot2::ggplot(ggplot2::midwest, ggplot2::aes(x=area, y=poptotal)) + 
   ggplot2::geom_point(ggplot2::aes(col=state, size=popdensity)) + 
   ggplot2::geom_smooth(method="loess", se=F) + 
@@ -336,25 +345,99 @@ ggplot2::ggplot(ggplot2::midwest, ggplot2::aes(x=area, y=poptotal)) +
        x="Area", 
        title="Scatterplot", 
        caption = "Source: midwest")
+` ``
 ```
-````
 
 ## Code
 
 ![](images/plots_no_print.png)
 
+## Code
+
+You can also include simple code in the middle of text:
+
+![](images/code_inline.png)
+
+. . .
+
+```{r, echo=FALSE}
+n <- 623874
+p <- 532672/n
+```
+
+We have `r sprintf('%i', n)` individuals in my report from those `r sprintf('%.1f', 100*p)`% had the condition of interest.
+
 ## Output format
 
-<https://quarto.org/docs/reference/formats/html.html> \## Include code \## Code options \## Your turn \## Write Quarto Code
+By default we've used html as output, but several outputs can be used:
+
+- html; [format options](https://quarto.org/docs/reference/formats/html.html)
+- docx; [format options](https://quarto.org/docs/reference/formats/docx.html)
+- pdf; [format options](https://quarto.org/docs/reference/formats/pdf.html)
+- revealjs; [format options](https://quarto.org/docs/reference/formats/presentations/revealjs.html)
+
+See all output formats and options: <https://quarto.org/docs/reference/>
+
+## Your turn
+
+*5 minutes*
+
+Create a quarto file that:
+
+- Generates a 'Microsoft Word' document
+
+- Add a title
+
+- Subtitle (##)
+
+- A link
+
+- Some code
+
+```{r, eval=FALSE}
+# example
+ggplot2::ggplot(cars, ggplot2::aes(x = speed, y = dist)) +
+  ggplot2::geom_point()
+```
+
+## Your turn
+
+``` markdown
+---
+title: "ggplot2"
+format: docx
+editor: visual
+---
+
+## Plotting with R
+
+ggplot2 is a very powerful R package that allows us to create plots in R. The ggplot2 package is available from [cran](https://cran.r-project.org). There are very nice tutorials in a the [ggplot2 website](https://ggplot2.tidyverse.org).
+
+## Example
+
+Here some simple code that creates an scatter plot:
+
+` ``{{r}}
+ggplot2::ggplot(cars, ggplot2::aes(x = speed, y = dist)) +
+  ggplot2::geom_point()
+` ``
+
+```
+
+## Your turn
+
+![](images/word_exercise1.png)
+
+## Use the omopverse tools in reports
 
 With the help of `visOmopResults` package, we can use **table and plot functions** to directly output results in different formats. Examples:
 
 ::: {style="max-height: 500px; overflow-x: auto; font-size: 0.8em;"}
-| **Package**             | **Result Function**        | **result_type**            | **Table Function**     | **Plot Function**     |
+| **Package** | **Result Function** | **result_type** | **Table Function** | **Plot Function** |
 |---------------|---------------|---------------|---------------|---------------|
 | `CohortCharacteristics` | `summariseCharacteristics` | summarise_characteristics  | `tableCharacteristics` | `plotCharacteristics` |
-| `IncidencePrevalence`   | `estimateIncidence`        | incidence                  | `tableIncidence`       | `plotIncidence`       |
-| `DrugUtilisation`       | `summariseDrugUtilisation` | summarise_drug_utilisation | `tableDrugUtilisation` | `plotDrugUtilisation` |
+| `IncidencePrevalence` | `estimateIncidence` | incidence | `tableIncidence` | `plotIncidence` |
+| `DrugUtilisation` | `summariseDrugUtilisation` | summarise_drug_utilisation | `tableDrugUtilisation` | `plotDrugUtilisation` |
 :::
 
 . . .
@@ -382,105 +465,36 @@ With the help of `visOmopResults` package, we can use **table and plot functions
 | `"datatable"` | `DT`             | Interactive web reports | \- JavaScript-powered tables <br>- Search, filter, and sort features |
 :::
 
-## Example Code
+## Create a simple table 
 
-Let's import the `summarised_result` object:
-
-```{r setup, include=TRUE}
-result <- omopgenerics::importSummarisedResult(here::here("data"))
+```{r}
+results <- omopgenerics::importSummarisedResult(here::here("data"))
+CohortCharacteristics::tableCharacteristics(result)
 ```
+
+## Create a simple table
+
+```{r}
+CohortCharacteristics::tableCharacteristics(result, type = "flextable")
+```
+
+## Plot Output Options
+
+💡 **Which one to use?**
+
+- `ggplot2` for everything (mainly static reports, but also useful for shiny apps).
+- `plotly` mainly for interactive output (shiny apps).
+
+## Create a simple plot
+
+```{r}
+DrugUtilisation::plotProportionOfPatientsCovered(result, type = "flextable")
+```
+
+## OmopViewer
 
 . . .
 
-Let's see which is the data contained in this `summarised_result` object:
+## Thanks
 
-```{r}
-omopgenerics::settings(result) |> 
-  dplyr::glimpse()
-```
-
-## Understanding the result object
-
-```{r}
-omopgenerics::settings(result)$result_type |> 
-  table()
-omopgenerics::settings(result) |>
-  dplyr::select(package_name, package_version) |>
-  dplyr::distinct()
-```
-
-### Filter my results
-
-As we have seen this `summarised_result` object contains several result sets. We can filter the result object to the data set we are interested using 5 different functions:
-
--   `dplyr::filter()`
--   `omopgenerics::filterSettings()`
--   `omopgenerics::filterGroup()`
--   `omopgenerics::filterStrata()`
--   `omopgenerics::filterAdditional()`
-
-<!-- ::: {style="max-height: 1000px; min-height: 400px;overflow-y: auto; font-size: 0.8em;"} -->
-
-<!-- ```{r} -->
-
-<!-- gt_table <- tableCharacteristics( -->
-
-<!--   results_CPRD_GOLD_2025_01_08 |> newSummarisedResult() |>  -->
-
-<!--     omopgenerics::filterSettings(result_type == "summarise_characteristics"), -->
-
-<!--   type = "gt" -->
-
-<!-- ) |>  -->
-
-<!--   gt::tab_options( -->
-
-<!--     table.font.size = px(15),     -->
-
-<!--     data_row.padding = px(20),     -->
-
-<!--     column_labels.font.size = px(14)  -->
-
-<!--   ) -->
-
-<!-- gt_table -->
-
-<!-- ``` -->
-
-<!-- ::: -->
-
-<!-- ------------------------------------------------------------------------ -->
-
-<!-- ### Plot -->
-
-<!-- ```{r, fig.width=25, fig.height=15} -->
-
-<!-- plotIncidence( -->
-
-<!--     result = incidence |> -->
-
-<!--         filterSettings(denominator_age_group %in% c( -->
-
-<!--             "0 to 19", -->
-
-<!--             "20 to 39" -->
-
-<!--         )), -->
-
-<!--     facet = c("outcome_cohort_name", "denominator_sex"), -->
-
-<!--     colour = c("denominator_age_group") -->
-
-<!-- ) -->
-
-<!-- ``` -->
-
-<!-- ------------------------------------------------------------------------ -->
-
-<!-- ### Try It Yourself -->
-
-<!-- -   Create a **Quarto** document.\ -->
-
-<!-- -   Add an **incidence table** with **year** as the analysis interval, including only **females aged 20 to 39**.\ -->
-
-<!-- -   Add a **characteristics plot** showing the **percentage of patients in each age group**. -->
+How can we better help?
