@@ -491,9 +491,29 @@ CohortCharacteristics::tableCharacteristics(result, type = "flextable")
 DrugUtilisation::plotProportionOfPatientsCovered(result, type = "flextable")
 ```
 
+## Your turn
+
+*15 minutes*
+
+Choose one of the ingredients: and create a 'Microsoft Word' report that shows:
+
+- Number of ingredient users
+
+- Attrition
+
+- Characteristics of new users
+
+- Proportion of patients covered
+
+- Prevalence 
+
 ## OmopViewer
 
 . . .
+
+
+
+## Create a shiny app
 
 ## Thanks
 
