@@ -25,7 +25,7 @@ editor: visual
 -   **OmopViewer** to create shiny apps.
 
 ```{r, echo=FALSE}
-options(width=125)
+options(width=120)
 ```
 
 ## The `summarised_result` object
@@ -56,7 +56,7 @@ The best way to explore the `summarised_result` object is filtering to the resul
 ```{r}
 result |>
   omopgenerics::filterSettings(result_type == "mock_summarised_result") |>
-  broom::tidy() # also reexported in omopgenerics/visOmopResults and many of the analytics packages
+  omopgenerics::tidy() # also reexported in visOmopResults and many of the analytics packages (originally from broom)
 ```
 
 ## Filter the `summarised_result` object
@@ -125,6 +125,8 @@ Prepare your session:
 
 2)  Install last version of `omopgenerics`
 
+. . .
+
 ```{r, eval=FALSE}
 install.packages("omopgenerics")
 ```
@@ -133,15 +135,19 @@ install.packages("omopgenerics")
 
 4)  Create empty folder `data`
 
+. . .
+
 ```{r, eval=FALSE}
 dir.create(here::here("data"))
 ```
 
 5)  Download the results that we are going to work with
 
+. . .
+
 ```{r, eval=FALSE}
 download.file(
-  url = "https://raw.githubusercontent.com/darwin-eu-dev/DrugUtilisation/refs/heads/main/extras/mock_drug_strength.csv?token=GHSAT0AAAAAACVBWZS75DTO24L6FNT6CYDKZ42QESA",
+  url = "https://raw.githubusercontent.com/oxford-pharmacoepi/HDS_training_reporting/refs/heads/main/Study/hds_training_results.csv",
   destfile = here::here("data", "results.csv")
 )
 ```
@@ -157,7 +163,8 @@ Exercise: *(5 minutes)*
 
 ## Solution
 
-```{r, eval=FALSE}
+::: {style="max-height: 700px; overflow-y: auto; font-size: 0.8em;"}
+```{r}
 result <- omopgenerics::importSummarisedResult(here::here("data", "results.csv"))
 result |>
   omopgenerics::settings() |>
@@ -168,9 +175,10 @@ result |>
   dplyr::select(package_name, package_version) |>
   dplyr::distinct()
 result |>
-  omopgenerics::filterSettings(result_type == "...") |>
+  omopgenerics::filterSettings(result_type == "summarise_characteristics") |>
   omopgenerics::tidy()
 ```
+:::
 
 ## Quarto: Why Another Tool?
 
@@ -187,12 +195,12 @@ Quarto enables you to weave together content and executable code into a finished
 
 ## Quarto vs. Shiny: Different Purposes
 
-| Feature             | **Shiny (Apps)**          | **Quarto (Reports)**              |
+| Feature | **Shiny (Apps)** | **Quarto (Reports)** |
 |--------------------|----------------------|------------------------------|
-| **User Need**       | Interactive dashboards    | Static reports with analysis      |
-| **Reproducibility** | Reacts to user inputs     | Fixed, version-controlled outputs |
-| **Output Format**   | Web-based UI              | Word, PDF, HTML, PowerPoint       |
-| **Best For**        | Exploratory data analysis | Structured study reports          |
+| **User Need** | Interactive dashboards | Static reports with analysis |
+| **Reproducibility** | Reacts to user inputs | Fixed, version-controlled outputs |
+| **Output Format** | Web-based UI | Word, PDF, HTML, PowerPoint |
+| **Best For** | Exploratory data analysis | Structured study reports |
 
 . . .
 
@@ -408,6 +416,7 @@ title: "ggplot2"
 format: docx
 editor: visual
 ---
+```
 
 ## Plotting with R
 
@@ -417,11 +426,11 @@ ggplot2 is a very powerful R package that allows us to create plots in R. The gg
 
 Here some simple code that creates an scatter plot:
 
+``` rmakdown
 ` ``{{r}}
 ggplot2::ggplot(cars, ggplot2::aes(x = speed, y = dist)) +
   ggplot2::geom_point()
 ` ``
-
 ```
 
 ## Your turn
@@ -437,7 +446,10 @@ With the help of `visOmopResults` package, we can use **table and plot functions
 |---------------|---------------|---------------|---------------|---------------|
 | `CohortCharacteristics` | `summariseCharacteristics` | summarise_characteristics  | `tableCharacteristics` | `plotCharacteristics` |
 | `IncidencePrevalence` | `estimateIncidence` | incidence | `tableIncidence` | `plotIncidence` |
-| `DrugUtilisation` | `summariseDrugUtilisation` | summarise_drug_utilisation | `tableDrugUtilisation` | `plotDrugUtilisation` |
+| `IncidencePrevalence` | `estimatePeriodPrevalence` | prevalence | `tablePrevalence` | `plotPrevalence` |
+| `DrugUtilisation` | `summariseDrugUtilisation` | summarise_drug_utilisation | `tableDrugUtilisation` | - |
+| `DrugUtilisation` | `summariseProportionOfPatientsCovered` | summarise_proportion_of_patients_covered | - | `plotProportionOfPatientsCovered` |
+| `OmopSketch` | `summariseOmopSnapshot` | summarise_omop_snapshot | `tableOmopSnapshot` | - |
 :::
 
 . . .
@@ -467,14 +479,16 @@ With the help of `visOmopResults` package, we can use **table and plot functions
 
 ## Create a simple table 
 
+::: {style="max-height: 800px; overflow-y: auto;"}
 ```{r}
 results <- omopgenerics::importSummarisedResult(here::here("data"))
 CohortCharacteristics::tableCharacteristics(result)
 ```
+:::
 
 ## Create a simple table
 
-```{r}
+```{r, eval=FALSE}
 CohortCharacteristics::tableCharacteristics(result, type = "flextable")
 ```
 
@@ -487,7 +501,7 @@ CohortCharacteristics::tableCharacteristics(result, type = "flextable")
 
 ## Create a simple plot
 
-```{r}
+```{r, eval=FALSE}
 DrugUtilisation::plotProportionOfPatientsCovered(result, type = "flextable")
 ```
 
@@ -507,13 +521,122 @@ Choose one of the ingredients: and create a 'Microsoft Word' report that shows:
 
 - Prevalence 
 
+## Shiny apps
+
+Shiny apps are a way to display results interactively, it is very useful when you have many results.
+
+Example shiny: <https://master-data-scientist.shinyapps.io/Flight-Dashboard/>
+
+. . .
+
+Shiny apps have two parts:
+
+- The **U**ser **I**nterface (ui): is the visualisation part, it defines what the user will see: different buttons, panels, plots, tables...
+
+- The **server**: is the part that calculates the intercative visualisations and outputs to display.
+
+## Shiny apps
+
+Generaly we would create a shiny app with 3 files (`ui.R`, `server.R`, and `global.R`):
+
+- **global.R** It would include code that will be executed at the begining of the creation of the shiny app. Usually used to define some parameters of preprosses some data.
+- **ui.R** It contains the code of the user interface part.
+- **server.R** It contains the code of the server part. The server is a function with the following arguments (`input`, `output`, and `session`).
+
+## My first shiny app
+
+*New Blank File* -> *Shiny Web App...* -> MyFirstShiny + tick multiple file
+
+. . .
+
+If you click **Run App** in the top right.
+
+. . .
+
+![](images/my_first_shiny.png)
+
 ## OmopViewer
 
 . . .
 
+**OmopViewer** it creates the shiny for you. It will create the scripts ('shiny.R', 'server.R', and 'global.R') given a summarised_result standard format.
 
+The idea is that **OmopViewer** will create for you the stucture and 90% of the content and then you can cusomise it a bit more.
 
-## Create a shiny app
+## OmopViewer empty shiny
+
+```{r, eval=FALSE}
+OmopViewer::exportStaticApp(
+  result = omopgenerics::emptySummarisedResult(),
+  directory = here::here()
+)
+```
+
+## OmopViewer add results
+
+```{r, eval=FALSE}
+result <- omopgenerics::importSummarisedResult(here::here("data"))
+OmopViewer::exportStaticApp(
+  result = result,
+  directory = here::here()
+)
+```
+
+## exportStaticApp inputs
+
+Let's see the other inputs:
+
+- *result* A summarised_result object.
+
+- *directory* Directory to create the shiny.
+
+- *logo* Name of a logo or path to a logo. If NULL no logo is included. Only svg format allowed for the moment.
+
+- *title* title of the shiny
+
+- *background* Whether to include a background panel. Background panel content will be controlled from the generated background.md file.
+
+- *summary* Whether to include a panel with a summary of content in the 'result'.
+
+- *panelStructure* A named list of panel indetifiers to organise them in dropdown menus.
+
+- *panelDetails* A named list to provide details for each one of the panels, such as: result_id, result_type, title, icon, output_id, ... Name of each element must be the identifier name of 'panelStructure'.
+
+- *theme* Specify the theme for the Shiny application. You can either select a predefined theme provided by the package (e.g., '"theme1"'), or define a custom theme using 'bslib::bs_theme()'. If using a custom theme, it must be provided as a character string (e.g., ‘"bslib::bs_theme(bg = ’white', fg = 'black')"').
+
+- *open* Whether to open the shiny app project
+
+## Let's play with some of the inputs
+
+- *logo*: we will download a logo from the internet (e.g. [random picture](https://teamcolorcodes.com/wp-content/uploads/2017/11/barcelona.jpg))
+
+- *title*: Let's put a meaningful title.
+
+- *summary*: Let's not display the summary tab (`summary = FALSE`).
+
+## Let's edit the resultant shiny
+
+1) Edit the `background.md` file (not much as we will overwrite this shiny again).
+
+2) Add the following statement in the server:
+
+```{r, eval=FALSE}
+bslib::bs_themer()
+```
+
+## Let's edit the shiny stucture
+
+With the `panelDetails` and `panelStructure` we can edit the structure of the shiny.
+
+## OmopViewer dynamic mode
+
+OmopViewer has a dynamic mode where we do not need to create the shiny app files, but then we do not have any control on the shiny appearance.
+
+. . .
+
+```{r, eval=FALSE}
+OmopViewer::launchDynamicApp()
+```
 
 ## Thanks
 
