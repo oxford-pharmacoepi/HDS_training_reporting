@@ -1,0 +1,651 @@
+---
+title: "HDS training: Reporting tools"
+format:
+  revealjs: 
+    theme: [simple, custom_1.scss]
+    incremental: true   
+    slide-number: true
+    chalkboard: true
+    preview-links: auto
+    margin: 0.07
+    code-link: true
+    code-line-numbers: false
+    height: 900
+    width: 1600
+execute:
+  echo: true
+  eval: true
+editor: visual
+---
+
+## Content
+
+-   Simple manipulations of the `summarised_result` object.
+-   **Quarto** to create reports.
+-   **OmopViewer** to create shiny apps.
+
+```{r, echo=FALSE}
+options(width=120)
+```
+
+## The `summarised_result` object
+
+The `summarised_result` object is defined with 13 columns:
+
+```{r}
+omopgenerics::resultColumns()
+```
+
+```{r}
+visOmopResults::mockSummarisedResult() |>
+  dplyr::glimpse()
+```
+
+## Settings attribute
+
+```{r}
+result <- visOmopResults::mockSummarisedResult()
+omopgenerics::settings(result) |>
+  dplyr::glimpse()
+```
+
+## Explore the `summarised_result` object
+
+The best way to explore the `summarised_result` object is filtering to the result_type of interest and then using the `tidy()` function:
+
+```{r}
+result |>
+  omopgenerics::filterSettings(result_type == "mock_summarised_result") |>
+  omopgenerics::tidy() # also reexported in visOmopResults and many of the analytics packages (originally from broom)
+```
+
+## Filter the `summarised_result` object
+
+-   `dplyr::filter()` it is the normal filter function you specify a column and then you can filter
+
+. . .
+
+```{r}
+result |>
+  dplyr::filter(variable_level == "Amoxiciline" & strata_name == "overall")
+```
+
+## Filter the `summarised_result` object
+
+-   `omopgenerics::filterSettings()` you can filter using the settings.
+
+. . .
+
+```{r}
+omopgenerics::settings(result)
+result |>
+  omopgenerics::filterSettings(
+    result_type == "mock_summarised_result" & 
+      package_name == "visOmopResults"
+  )
+```
+
+## Filter the `summarised_result` object
+
+-   `omopgenerics::filterGroup/Strata/Additional()` you can filter using the 'tidy' version of group, strata or additional.
+
+. . .
+
+```{r}
+result |>
+  omopgenerics::filterStrata(sex == "Female")
+```
+
+## Tidy the `summarised_result`
+
+-   `omopgenerics::addSettings()` to add columns of the settings.
+-   `omopgenerics::splitGroup/Strata/Additional/All` to split a name-level pair into independent columns.
+-   `omopgenerics::pivotEstimates()` to pivot the estimates giving the correct type.
+
+## Import/Export the `summarised_result`
+
+Although we export and import the `summarised_result` from csv files it is important that we import and export them with the appropriate functions. This is important to make sure settings are exported and imported correctly.
+
+-   `importSummarisedResult()` To import a `summarised_result` object from a csv file.
+-   `exportSummarisedResult()` To create a csv file from a `summarised_result` object. Note that by default counts will be suppressed with `minCellCount = 5`.
+
+. . .
+
+! Note that `readr::write_csv()` and `readr::read_csv` will not export/import settings therefore results will be incomplete.
+
+## Cheatsheet
+
+If there is time add a cheatsheet here and give it to everyone
+
+## Your turn
+
+Prepare your session:
+
+1)  Create a project (top right of Rstudio + new project)
+
+2)  Install last version of `omopgenerics`
+
+. . .
+
+```{r, eval=FALSE}
+install.packages("omopgenerics")
+```
+
+3)  Open empty file: `tidy_result.R`
+
+4)  Create empty folder `data`
+
+. . .
+
+```{r, eval=FALSE}
+dir.create(here::here("data"))
+```
+
+5)  Download the results that we are going to work with
+
+. . .
+
+```{r, eval=FALSE}
+download.file(
+  url = "https://raw.githubusercontent.com/oxford-pharmacoepi/HDS_training_reporting/refs/heads/main/Study/hds_training_results.csv",
+  destfile = here::here("data", "results.csv")
+)
+```
+
+## Your turn
+
+Exercise: *(5 minutes)*
+
+-   Import the results.
+-   How many results types are included?
+-   Which are the version of the packages used?
+-   Show the tidy version of one of the *result_type* that you want to analyse
+
+## Solution
+
+::: {style="max-height: 700px; overflow-y: auto; font-size: 0.8em;"}
+```{r}
+result <- omopgenerics::importSummarisedResult(here::here("data", "results.csv"))
+result |>
+  omopgenerics::settings() |>
+  dplyr::pull("result_type") |>
+  unique()
+result |>
+  omopgenerics::settings() |>
+  dplyr::select(package_name, package_version) |>
+  dplyr::distinct()
+result |>
+  omopgenerics::filterSettings(result_type == "summarise_characteristics") |>
+  omopgenerics::tidy()
+```
+:::
+
+## Quarto: Why Another Tool?
+
+. . .
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+-   **We use Shiny** for interactive analysis.
+-   But what about:
+    -   Static reports for regulatory submissions?
+    -   Summaries with tables and figures for publications?
+    -   Easy export to Word/PDF without manual copy-pasting?
+-   **Quarto** helps us generate structured, automated, and reproducible reports. 
+
+## Quarto vs. Shiny: Different Purposes
+
+| Feature | **Shiny (Apps)** | **Quarto (Reports)** |
+|--------------------|----------------------|------------------------------|
+| **User Need** | Interactive dashboards | Static reports with analysis |
+| **Reproducibility** | Reacts to user inputs | Fixed, version-controlled outputs |
+| **Output Format** | Web-based UI | Word, PDF, HTML, PowerPoint |
+| **Best For** | Exploratory data analysis | Structured study reports |
+
+. . .
+
+💡 **We need both**:
+
+-   **Shiny** for exploring data.
+-   **Quarto** for final reporting.
+
+## Write simple quarto code
+
+Create my first quarto document:
+
+*Blank file* -> *Quarto Doc...* -> *my_first_quarto.qmd*
+
+. . .
+
+Use the **Render** button to generate the html document. 
+
+![](images/render.png)
+
+## Write simple quarto code
+
+Let's add some content to the quarto document:
+
+```{yaml}
+---
+title: "My quarto document"
+format: html
+editor: visual
+---
+```
+
+## Write simple quarto code
+
+![](images/only_title.png)
+
+## Write simple quarto code
+
+Add some text:
+
+. . .
+
+```{yaml}
+---
+title: "My quarto document"
+format: html
+editor: visual
+---
+  
+We can add some text here
+```
+
+## Write simple quarto code
+
+![](images/some_text.png)
+
+## Titles
+
+We can add titles using '\#', more symbols lower level:
+
+``` markdown
+## Title
+### Subtitle
+#### Subsubtitle
+##### Subsubsubtitle
+We can add some text here
+```
+
+## Titles
+
+![](images/titles.png)
+
+## Links
+
+Links can be added in two different ways:
+
+``` markdown
+<https://www.ndorms.ox.ac.uk>
+[Label](https://quarto.org)
+```
+
+## Links
+
+![](images/links.png)
+
+## Images
+
+You can easily add images like:
+
+``` markdown
+![](relative path to image)
+![](myfigure.png)
+![](folder/myfigure.png)
+```
+
+## Code
+
+The main reason to use quarto is that we can embed code into quarto!
+
+To add code we can use:
+
+``` markdown
+` ``{r}
+ggplot2::ggplot(ggplot2::midwest, ggplot2::aes(x=area, y=poptotal)) + 
+  ggplot2::geom_point(ggplot2::aes(col=state, size=popdensity)) + 
+  ggplot2::geom_smooth(method="loess", se=F) + 
+  ggplot2::xlim(c(0, 0.1)) + 
+  ggplot2::ylim(c(0, 500000)) + 
+  ggplot2::labs(
+    subtitle="Area Vs Population", 
+    y="Population", 
+    x="Area", 
+    title="Scatterplot", 
+    caption = "Source: midwest"
+  )
+` ``
+```
+. . .
+
+You can add the code chunk with the following button:
+
+![](images/code.png)
+
+## Code
+
+![](images/plots.png)
+
+## Code
+
+::: {.callout-tip}
+You can hide, messages, warning, output using the following options:
+
+- message=**TRUE**/FALSE
+- warning=**TRUE**/FALSE
+- echo=**TRUE**/FALSE
+- eval=**TRUE**/FALSE
+:::
+
+. . .
+
+``` markdown
+` ``{{r, warning=FALSE, message=FALSE, echo=FALSE}}
+ggplot2::ggplot(ggplot2::midwest, ggplot2::aes(x=area, y=poptotal)) + 
+  ggplot2::geom_point(ggplot2::aes(col=state, size=popdensity)) + 
+  ggplot2::geom_smooth(method="loess", se=F) + 
+  ggplot2::xlim(c(0, 0.1)) + 
+  ggplot2::ylim(c(0, 500000)) + 
+  ggplot2::labs(subtitle="Area Vs Population", 
+       y="Population", 
+       x="Area", 
+       title="Scatterplot", 
+       caption = "Source: midwest")
+` ``
+```
+
+## Code
+
+![](images/plots_no_print.png)
+
+## Code
+
+You can also include simple code in the middle of text:
+
+![](images/code_inline.png)
+
+. . .
+
+```{r, echo=FALSE}
+n <- 623874
+p <- 532672/n
+```
+
+We have `r sprintf('%i', n)` individuals in my report from those `r sprintf('%.1f', 100*p)`% had the condition of interest.
+
+## Output format
+
+By default we've used html as output, but several outputs can be used:
+
+- html; [format options](https://quarto.org/docs/reference/formats/html.html)
+- docx; [format options](https://quarto.org/docs/reference/formats/docx.html)
+- pdf; [format options](https://quarto.org/docs/reference/formats/pdf.html)
+- revealjs; [format options](https://quarto.org/docs/reference/formats/presentations/revealjs.html)
+
+See all output formats and options: <https://quarto.org/docs/reference/>
+
+## Your turn
+
+*5 minutes*
+
+Create a quarto file that:
+
+- Generates a 'Microsoft Word' document
+
+- Add a title
+
+- Subtitle (##)
+
+- A link
+
+- Some code
+
+```{r, eval=FALSE}
+# example
+ggplot2::ggplot(cars, ggplot2::aes(x = speed, y = dist)) +
+  ggplot2::geom_point()
+```
+
+## Your turn
+
+``` markdown
+---
+title: "ggplot2"
+format: docx
+editor: visual
+---
+```
+
+## Plotting with R
+
+ggplot2 is a very powerful R package that allows us to create plots in R. The ggplot2 package is available from [cran](https://cran.r-project.org). There are very nice tutorials in a the [ggplot2 website](https://ggplot2.tidyverse.org).
+
+## Example
+
+Here some simple code that creates an scatter plot:
+
+``` rmakdown
+` ``{{r}}
+ggplot2::ggplot(cars, ggplot2::aes(x = speed, y = dist)) +
+  ggplot2::geom_point()
+` ``
+```
+
+## Your turn
+
+![](images/word_exercise1.png)
+
+## Use the omopverse tools in reports
+
+With the help of `visOmopResults` package, we can use **table and plot functions** to directly output results in different formats. Examples:
+
+::: {style="max-height: 500px; overflow-x: auto; font-size: 0.8em;"}
+| **Package** | **Result Function** | **result_type** | **Table Function** | **Plot Function** |
+|---------------|---------------|---------------|---------------|---------------|
+| `CohortCharacteristics` | `summariseCharacteristics` | summarise_characteristics  | `tableCharacteristics` | `plotCharacteristics` |
+| `IncidencePrevalence` | `estimateIncidence` | incidence | `tableIncidence` | `plotIncidence` |
+| `IncidencePrevalence` | `estimatePeriodPrevalence` | prevalence | `tablePrevalence` | `plotPrevalence` |
+| `DrugUtilisation` | `summariseDrugUtilisation` | summarise_drug_utilisation | `tableDrugUtilisation` | - |
+| `DrugUtilisation` | `summariseProportionOfPatientsCovered` | summarise_proportion_of_patients_covered | - | `plotProportionOfPatientsCovered` |
+| `OmopSketch` | `summariseOmopSnapshot` | summarise_omop_snapshot | `tableOmopSnapshot` | - |
+:::
+
+. . .
+
+💡 **Key Points:**
+
+-   **Each result function** computes the summary/statistics.
+
+-   **Table functions** generate structured tables.
+
+-   **Plot functions** provide visual representations.
+
+-   All these functions are backed by `visOmopResults` for consistency.
+
+## Table Output Options
+
+💡 **Which one to use?**
+
+::: {style="max-height: 500px; overflow-y: auto; font-size: 0.8em;"}
+| **Type**      | **Package Used** | **Best For**            | **Key Features**                                                     |
+|----------------|----------------|----------------|-----------------------|
+| `"gt"`        | `gt`             | HTML / PDF reports      | \- Publication-quality tables <br>- Styling, footnotes, citations    |
+| `"flextable"` | `flextable`      | Word / PowerPoint       | \- Best for MS Word & PPT <br>- More control over formatting         |
+| `"tibble"`    | `tibble`         | Data wrangling in R     | \- Prints neatly in console <br>- Not for final reports              |
+| `"datatable"` | `DT`             | Interactive web reports | \- JavaScript-powered tables <br>- Search, filter, and sort features |
+:::
+
+## Create a simple table 
+
+::: {style="max-height: 800px; overflow-y: auto;"}
+```{r}
+results <- omopgenerics::importSummarisedResult(here::here("data"))
+CohortCharacteristics::tableCharacteristics(result)
+```
+:::
+
+## Create a simple table
+
+::: {style="max-height: 800px; overflow-y: auto;"}
+```{r}
+CohortCharacteristics::tableCharacteristics(result, type = "flextable")
+```
+:::
+
+## Apply some filtering to the dataset before
+
+## Plot Output Options
+
+💡 **Which one to use?**
+
+- `ggplot2` for everything (mainly static reports, but also useful for shiny apps).
+- `plotly` mainly for interactive output (shiny apps).
+
+## Create a simple plot
+
+::: {style="max-height: 800px; overflow-y: auto;"}
+```{r, eval=FALSE}
+DrugUtilisation::plotProportionOfPatientsCovered(result, type = "flextable")
+```
+:::
+
+## Apply some filtering to the dataset before
+
+## Your turn
+
+*15 minutes*
+
+Choose one of the ingredients: and create a 'Microsoft Word' report that shows:
+
+- Number of ingredient users
+
+- Attrition
+
+- Characteristics of new users
+
+- Proportion of patients covered
+
+- Prevalence 
+
+## Shiny apps
+
+Shiny apps are a way to display results interactively, it is very useful when you have many results.
+
+Example shiny: <https://master-data-scientist.shinyapps.io/Flight-Dashboard/>
+
+. . .
+
+Shiny apps have two parts:
+
+- The **U**ser **I**nterface (ui): is the visualisation part, it defines what the user will see: different buttons, panels, plots, tables...
+
+- The **server**: is the part that calculates the intercative visualisations and outputs to display.
+
+## Shiny apps
+
+Generaly we would create a shiny app with 3 files (`ui.R`, `server.R`, and `global.R`):
+
+- **global.R** It would include code that will be executed at the begining of the creation of the shiny app. Usually used to define some parameters of preprosses some data.
+- **ui.R** It contains the code of the user interface part.
+- **server.R** It contains the code of the server part. The server is a function with the following arguments (`input`, `output`, and `session`).
+
+## My first shiny app
+
+*New Blank File* -> *Shiny Web App...* -> MyFirstShiny + tick multiple file
+
+. . .
+
+If you click **Run App** in the top right.
+
+. . .
+
+![](images/my_first_shiny.png)
+
+## OmopViewer
+
+. . .
+
+**OmopViewer** it creates the shiny for you. It will create the scripts ('shiny.R', 'server.R', and 'global.R') given a summarised_result standard format.
+
+The idea is that **OmopViewer** will create for you the stucture and 90% of the content and then you can cusomise it a bit more.
+
+## OmopViewer empty shiny
+
+```{r, eval=FALSE}
+OmopViewer::exportStaticApp(
+  result = omopgenerics::emptySummarisedResult(),
+  directory = here::here()
+)
+```
+
+## OmopViewer add results
+
+```{r, eval=FALSE}
+result <- omopgenerics::importSummarisedResult(here::here("data"))
+OmopViewer::exportStaticApp(
+  result = result,
+  directory = here::here()
+)
+```
+
+## exportStaticApp inputs
+
+Let's see the other inputs:
+
+- *result* A summarised_result object.
+
+- *directory* Directory to create the shiny.
+
+- *logo* Name of a logo or path to a logo. If NULL no logo is included. Only svg format allowed for the moment.
+
+- *title* title of the shiny
+
+- *background* Whether to include a background panel. Background panel content will be controlled from the generated background.md file.
+
+- *summary* Whether to include a panel with a summary of content in the 'result'.
+
+- *panelStructure* A named list of panel indetifiers to organise them in dropdown menus.
+
+- *panelDetails* A named list to provide details for each one of the panels, such as: result_id, result_type, title, icon, output_id, ... Name of each element must be the identifier name of 'panelStructure'.
+
+- *theme* Specify the theme for the Shiny application. You can either select a predefined theme provided by the package (e.g., '"theme1"'), or define a custom theme using 'bslib::bs_theme()'. If using a custom theme, it must be provided as a character string (e.g., ‘"bslib::bs_theme(bg = ’white', fg = 'black')"').
+
+- *open* Whether to open the shiny app project
+
+## Let's play with some of the inputs
+
+- *logo*: we will download a logo from the internet (e.g. [random picture](https://teamcolorcodes.com/wp-content/uploads/2017/11/barcelona.jpg))
+
+- *title*: Let's put a meaningful title.
+
+- *summary*: Let's not display the summary tab (`summary = FALSE`).
+
+## Let's edit the resultant shiny
+
+1) Edit the `background.md` file (not much as we will overwrite this shiny again).
+
+2) Add the following statement in the server:
+
+```{r, eval=FALSE}
+bslib::bs_themer()
+```
+
+## Let's edit the shiny stucture
+
+With the `panelDetails` and `panelStructure` we can edit the structure of the shiny.
+
+## OmopViewer dynamic mode
+
+OmopViewer has a dynamic mode where we do not need to create the shiny app files, but then we do not have any control on the shiny appearance.
+
+. . .
+
+```{r, eval=FALSE}
+OmopViewer::launchDynamicApp()
+```
+
+## Thanks
+
+How can we better help?
