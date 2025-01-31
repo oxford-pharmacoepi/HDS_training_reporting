@@ -15,6 +15,8 @@ format:
 execute:
   echo: true
   eval: true
+  message: false
+  warning: false
 editor: visual
 ---
 
@@ -32,9 +34,13 @@ options(width=120)
 
 The `summarised_result` object is defined with 13 columns:
 
+. . .
+
 ```{r}
 omopgenerics::resultColumns()
 ```
+
+. . .
 
 ```{r}
 visOmopResults::mockSummarisedResult() |>
@@ -42,6 +48,8 @@ visOmopResults::mockSummarisedResult() |>
 ```
 
 ## Settings attribute
+
+. . .
 
 ```{r}
 result <- visOmopResults::mockSummarisedResult()
@@ -51,13 +59,20 @@ omopgenerics::settings(result) |>
 
 ## Explore the `summarised_result` object
 
+. . .
+
 The best way to explore the `summarised_result` object is filtering to the result_type of interest and then using the `tidy()` function:
 
+. . .
+
+::: {style="max-height: 700px; overflow-y: auto"}
 ```{r}
 result |>
   omopgenerics::filterSettings(result_type == "mock_summarised_result") |>
-  omopgenerics::tidy() # also reexported in visOmopResults and many of the analytics packages (originally from broom)
+  omopgenerics::tidy() |> # also reexported in visOmopResults and many of the analytics packages (originally from broom)
+  print(n = 100)
 ```
+:::
 
 ## Filter the `summarised_result` object
 
@@ -225,7 +240,7 @@ Use the **Render** button to generate the html document.
 
 Let's add some content to the quarto document:
 
-```{yaml}
+``` markdown
 ---
 title: "My quarto document"
 format: html
@@ -243,7 +258,7 @@ Add some text:
 
 . . .
 
-```{yaml}
+``` markdown
 ---
 title: "My quarto document"
 format: html
@@ -302,8 +317,8 @@ The main reason to use quarto is that we can embed code into quarto!
 
 To add code we can use:
 
-``` markdown
-` ``{r}
+```` markdown
+```{{r}}
 ggplot2::ggplot(ggplot2::midwest, ggplot2::aes(x=area, y=poptotal)) + 
   ggplot2::geom_point(ggplot2::aes(col=state, size=popdensity)) + 
   ggplot2::geom_smooth(method="loess", se=F) + 
@@ -316,8 +331,8 @@ ggplot2::ggplot(ggplot2::midwest, ggplot2::aes(x=area, y=poptotal)) +
     title="Scatterplot", 
     caption = "Source: midwest"
   )
-` ``
 ```
+````
 . . .
 
 You can add the code chunk with the following button:
@@ -341,8 +356,8 @@ You can hide, messages, warning, output using the following options:
 
 . . .
 
-``` markdown
-` ``{{r, warning=FALSE, message=FALSE, echo=FALSE}}
+```` markdown
+```{{r, warning=FALSE, message=FALSE, echo=FALSE}}
 ggplot2::ggplot(ggplot2::midwest, ggplot2::aes(x=area, y=poptotal)) + 
   ggplot2::geom_point(ggplot2::aes(col=state, size=popdensity)) + 
   ggplot2::geom_smooth(method="loess", se=F) + 
@@ -353,8 +368,8 @@ ggplot2::ggplot(ggplot2::midwest, ggplot2::aes(x=area, y=poptotal)) +
        x="Area", 
        title="Scatterplot", 
        caption = "Source: midwest")
-` ``
 ```
+````
 
 ## Code
 
@@ -384,6 +399,8 @@ By default we've used html as output, but several outputs can be used:
 - pdf; [format options](https://quarto.org/docs/reference/formats/pdf.html)
 - revealjs; [format options](https://quarto.org/docs/reference/formats/presentations/revealjs.html)
 
+. . .
+
 See all output formats and options: <https://quarto.org/docs/reference/>
 
 ## Your turn
@@ -402,6 +419,8 @@ Create a quarto file that:
 
 - Some code
 
+. . .
+
 ```{r, eval=FALSE}
 # example
 ggplot2::ggplot(cars, ggplot2::aes(x = speed, y = dist)) +
@@ -410,13 +429,12 @@ ggplot2::ggplot(cars, ggplot2::aes(x = speed, y = dist)) +
 
 ## Your turn
 
-``` markdown
+```` markdown
 ---
 title: "ggplot2"
 format: docx
 editor: visual
 ---
-```
 
 ## Plotting with R
 
@@ -426,12 +444,12 @@ ggplot2 is a very powerful R package that allows us to create plots in R. The gg
 
 Here some simple code that creates an scatter plot:
 
-``` rmakdown
-` ``{{r}}
+
+```{{r}}
 ggplot2::ggplot(cars, ggplot2::aes(x = speed, y = dist)) +
   ggplot2::geom_point()
-` ``
 ```
+````
 
 ## Your turn
 
@@ -503,8 +521,6 @@ result |>
 ```
 :::
 
-## Apply some filtering to the dataset before
-
 ## Plot Output Options
 
 💡 **Which one to use?**
@@ -531,8 +547,6 @@ Choose one of the ingredients: and create a 'Microsoft Word' report that shows:
 
 - Number of ingredient users
 
-- Attrition
-
 - Characteristics of new users
 
 - Proportion of patients covered
@@ -551,13 +565,13 @@ Shiny apps have two parts:
 
 - The **U**ser **I**nterface (ui): is the visualisation part, it defines what the user will see: different buttons, panels, plots, tables...
 
-- The **server**: is the part that calculates the intercative visualisations and outputs to display.
+- The **server**: is the part that calculates the interactive visualisations and outputs to display.
 
 ## Shiny apps
 
 Generaly we would create a shiny app with 3 files (`ui.R`, `server.R`, and `global.R`):
 
-- **global.R** It would include code that will be executed at the begining of the creation of the shiny app. Usually used to define some parameters of preprosses some data.
+- **global.R** It would include code that will be executed at the beginning of the creation of the shiny app. Usually used to define some parameters of preproces some data.
 - **ui.R** It contains the code of the user interface part.
 - **server.R** It contains the code of the server part. The server is a function with the following arguments (`input`, `output`, and `session`).
 
@@ -618,13 +632,17 @@ Let's see the other inputs:
 
 - *panelStructure* A named list of panel indetifiers to organise them in dropdown menus.
 
+## exportStaticApp inputs
+
 - *panelDetails* A named list to provide details for each one of the panels, such as: result_id, result_type, title, icon, output_id, ... Name of each element must be the identifier name of 'panelStructure'.
 
 - *theme* Specify the theme for the Shiny application. You can either select a predefined theme provided by the package (e.g., '"theme1"'), or define a custom theme using 'bslib::bs_theme()'. If using a custom theme, it must be provided as a character string (e.g., ‘"bslib::bs_theme(bg = ’white', fg = 'black')"').
 
 - *open* Whether to open the shiny app project
 
-## Let's play with some of the inputs
+## Exercise 1
+
+Let's play with some of the inputs
 
 - *logo*: we will download a logo from the internet (e.g. [random picture](https://teamcolorcodes.com/wp-content/uploads/2017/11/barcelona.jpg))
 
@@ -632,11 +650,15 @@ Let's see the other inputs:
 
 - *summary*: Let's not display the summary tab (`summary = FALSE`).
 
-## Let's edit the resultant shiny
+## Exercise 2
+
+Let's edit the resultant shiny
 
 1) Edit the `background.md` file (not much as we will overwrite this shiny again).
 
-2) Add the following statement in the server:
+2) Add the following statement in the server and let's search for a theme that we like:
+
+. . .
 
 ```{r, eval=FALSE}
 bslib::bs_themer()
@@ -646,6 +668,42 @@ bslib::bs_themer()
 
 With the `panelDetails` and `panelStructure` we can edit the structure of the shiny.
 
+```{r}
+omopgenerics::settings(result) |> 
+  print(n = 100)
+```
+
+## Let's edit the shiny stucture
+
+With the `panelDetails` and `panelStructure` we can edit the structure of the shiny.
+
+```{r, eval=FALSE}
+panelStructure = list(
+  "attrition",
+  "ppc",
+  "characterisation",
+  "Prevalence" = list("prevalence", "prevalence_attrition")
+)
+OmopViewer::exportStaticApp(
+  result = result,
+  directory = here::here(), 
+  logo = 'hds',
+  title = 'My study', 
+  background = TRUE, 
+  summary = FALSE, 
+  panelStructure = panelStructure,
+  theme = 'bslib::bs_theme(bootswatch = "quartz")'
+)
+```
+
+## Exercise 3
+
+Let's customise this shiny:
+
+- Add or remove a couple of buttons
+
+- Edit the background section
+
 ## OmopViewer dynamic mode
 
 OmopViewer has a dynamic mode where we do not need to create the shiny app files, but then we do not have any control on the shiny appearance.
@@ -653,6 +711,7 @@ OmopViewer has a dynamic mode where we do not need to create the shiny app files
 . . .
 
 ```{r, eval=FALSE}
+options(shiny.maxRequestSize = 100 * 1024^2)
 OmopViewer::launchDynamicApp()
 ```
 

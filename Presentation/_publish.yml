@@ -1,0 +1,4 @@
+- source: hds_training.qmd
+  quarto-pub:
+    - id: e268b9db-12b4-4371-9488-697ed300e562
+      url: 'https://dpa-pde-oxford.quarto.pub/hds-training-reporting-tools'

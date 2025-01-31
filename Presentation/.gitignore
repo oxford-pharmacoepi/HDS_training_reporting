@@ -1,3 +1,4 @@
 .Rprofile
 hds_training_files/
 *.html
+shiny/
