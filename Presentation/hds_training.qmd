@@ -481,7 +481,7 @@ With the help of `visOmopResults` package, we can use **table and plot functions
 
 ::: {style="max-height: 800px; overflow-y: auto;"}
 ```{r}
-results <- omopgenerics::importSummarisedResult(here::here("data"))
+result <- omopgenerics::importSummarisedResult(here::here("data"))
 CohortCharacteristics::tableCharacteristics(result)
 ```
 :::
@@ -490,7 +490,16 @@ CohortCharacteristics::tableCharacteristics(result)
 
 ::: {style="max-height: 800px; overflow-y: auto;"}
 ```{r}
-CohortCharacteristics::tableCharacteristics(result, type = "flextable")
+result |>
+  omopgenerics::filterSettings(result_type == "summarise_characteristics") |>
+  omopgenerics::filterGroup(cohort_name == "amoxicillin") |>
+  omopgenerics::filterStrata(age_group == "overall") |>
+  dplyr::filter(estimate_name %in% c("percentage", "median")) |>
+  CohortCharacteristics::tableCharacteristics(
+    header = c("cdm_name", "sex"), 
+    type = "flextable", 
+    hide = c("cohort_name", "age_group", "window", "table", "value", "table_name")
+  )
 ```
 :::
 
@@ -506,12 +515,13 @@ CohortCharacteristics::tableCharacteristics(result, type = "flextable")
 ## Create a simple plot
 
 ::: {style="max-height: 800px; overflow-y: auto;"}
-```{r, eval=FALSE}
-DrugUtilisation::plotProportionOfPatientsCovered(result, type = "flextable")
+```{r}
+result |>
+  omopgenerics::filterSettings(result_type == "summarise_proportion_of_patients_covered") |>
+  omopgenerics::filterStrata(sex == "overall" & age_group != "overall") |>
+  DrugUtilisation::plotProportionOfPatientsCovered(colour = "age_group")
 ```
 :::
-
-## Apply some filtering to the dataset before
 
 ## Your turn
 

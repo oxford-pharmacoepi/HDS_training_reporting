@@ -1,0 +1,80 @@
+---
+title: "My first automatic report"
+format: docx
+editor: visual
+execute:
+  echo: false
+  message: false
+  warning: false
+---
+
+```{r, echo=FALSE}
+# read data
+result <- omopgenerics::importSummarisedResult(here::here("data"))
+```
+
+## Amoxicillin
+
+### Attrition
+
+```{r, echo=FALSE}
+cohort <- "amoxicillin"
+# get some numbers
+n_subjects <- result |>
+  omopgenerics::filterSettings(result_type == "summarise_cohort_attrition") |>
+  omopgenerics::tidy() |>
+  dplyr::filter(variable_name == "number_subjects", reason_id == "1", cohort_name == cohort) |>
+  dplyr::pull("count")
+n_records <- result |>
+  omopgenerics::filterSettings(result_type == "summarise_cohort_attrition") |>
+  omopgenerics::tidy() |>
+  dplyr::filter(variable_name == "number_records", reason_id == "1", cohort_name == cohort) |>
+  dplyr::pull("count")
+n_users <- result |>
+  omopgenerics::filterSettings(result_type == "summarise_cohort_attrition") |>
+  omopgenerics::tidy() |>
+  dplyr::filter(variable_name == "number_subjects", reason_id == "5", cohort_name == cohort) |>
+  dplyr::pull("count")
+p <- 100 * n_users / n_subjects
+```
+
+There were identified a total of `r sprintf('%i', n_subjects)` in the database with a total of `r sprintf('%i', n_records)` records. Of those only `r sprintf('%i (%.1f', n_users, p)`%) satisfied the inclusion criteria. See the attrition below:
+
+```{r}
+diag <- result |>
+  omopgenerics::filterSettings(result_type == "summarise_cohort_attrition") |>
+  omopgenerics::filterGroup(cohort_name == cohort) |>
+  CohortCharacteristics::plotCohortAttrition()
+htmlwidgets::saveWidget(diag, "attrition.html", selfcontained = TRUE)
+pagedown::chrome_print("attrition.html", output = "attrition.pdf")
+magick::image_read_pdf("attrition.pdf", density = 300) |>
+  magick::image_write("attrition.png", format = "png")
+knitr::include_graphics("attrition.png")
+```
+
+### Characteristics
+
+The characteristics of the new users of `r cohort` was the following:
+
+```{r}
+result |>
+  omopgenerics::filterSettings(result_type == "summarise_characteristics") |>
+  omopgenerics::filterGroup(cohort_name == cohort) |>
+  omopgenerics::filterStrata(age_group == "overall" & sex == "overall") |>
+  CohortCharacteristics::tableCharacteristics(
+    header = NULL, hide = c("cohort_name", "cdm_name", "age_group", "sex", "table", "window", "table_name", "value")
+  )
+```
+
+#### By sex
+
+```{r}
+result |>
+  omopgenerics::filterSettings(result_type == "summarise_characteristics") |>
+  omopgenerics::filterGroup(cohort_name == cohort) |>
+  omopgenerics::filterStrata(age_group == "overall") |>
+  CohortCharacteristics::tableCharacteristics(
+    header = "sex", 
+    hide = c("cohort_name", "cdm_name", "age_group", "table", "window", "table_name", "value")
+  )
+```
